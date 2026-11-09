@@ -1,5 +1,10 @@
 package koala;
 
+import koala.saline.data.SalineEntityTypeTagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -33,6 +38,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.concurrent.CompletableFuture;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Saline.MODID)
@@ -91,6 +98,8 @@ public class Saline
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        modEventBus.addListener(this::gatherData);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -113,24 +122,23 @@ public class Saline
             event.accept(EXAMPLE_BLOCK_ITEM);
     }
 
+    public void gatherData(GatherDataEvent event)
+    {
+        PackOutput output = event.getGenerator().getPackOutput();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+        event.getGenerator().addProvider(
+                event.includeServer(),
+                new SalineEntityTypeTagsProvider(output, lookupProvider, existingFileHelper)
+        );
+    }
+
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
-    }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
     }
 }

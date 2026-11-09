@@ -1,25 +1,31 @@
 
-Installation information
+Saline
 =======
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+Minecraft mod adding salt
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+TODO
+=======
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
-
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
-
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+### Features
+* Oceans now generate with salt-water instead of regular water
+  * Appropriate mixins to fix water-specific ocean generating features
+  * Special thanks to https://github.com/no-name-provided/NNP-Fluidlogging for how to add fluid-logging in an efficient way.
+  * salt-water fluid-logs all blocks that are water-loggable.
+  * Water source with 2 or more salt-water sources turn into salt-water source.
+* Entity tags for defining whether an aquatic mob can breath in saltwater and/or freshwater, causing saltwater only fish to "drown" in freshwater, and vice versa.
+  * Applied to vanilla mobs, by default.
+  * A mob can also breath in both if configured.
+* Saltwater causes adjacent copper to oxidize faster.
+* Saltwater can be "boiled" in cauldrons to get salt. Place a head source like lava, campfire, or a regular fire under the cauldron.
+* Salt crafts into salt blocks.
+* Salt blocks damage slime on contact (like salt on slugs and snails IRL). Use entity tags.
+* Cows, Camel, and some other animals congregate to salt blocks.
+  * Every once in a while they lick the salt which reduces their breeding timer and heals them. (In real life, they lick big salt blocks for sodium intake)
+* Salt blocks adjacent to ice or snow instantly melts it
+* Salt block adjacent to water will eventually turn the water into saltwater
+* Salt + (item tag) saltable food = improved saturation
+* Tridents travel further when thrown/traveling in salt-water VS regular water.
+* Salt surrounding glowstone dust = Salt Lamp
+* Dripstone with salt-water above it will create/grow salt crystals below it when dripping on salt block
+* Butcher villager trades salt

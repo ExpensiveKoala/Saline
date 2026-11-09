@@ -2,6 +2,7 @@ package koala.saline.mixins;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.*;
 import org.spongepowered.asm.mixin.*;
@@ -27,15 +28,20 @@ public class AquiferMixin {
     
     /**
      * If position being computed is coastal or deeper (noise density function), then we want to replace the Aquifer fluid for close to or above surface.
-     * Note: the slice is to prevent replacing the last return as that one handles the underground aquifers.
      */
-    @Inject(method = "computeFluid", at = @At(value = "RETURN"), slice = @Slice(
-      from = @At("HEAD"),
-      to = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/Aquifer$NoiseBasedAquifer;computeSurfaceLevel(IIILnet/minecraft/world/level/levelgen/Aquifer$FluidStatus;IZ)I")
-    ),
+    @Inject(method = "computeFluid", at = @At(value = "RETURN"),
+//  Note: the slice is to prevent replacing the last return as that one handles the underground aquifers. The
+//    slice = @Slice(
+//      from = @At("HEAD"),
+//      to = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/Aquifer$NoiseBasedAquifer;computeSurfaceLevel(IIILnet/minecraft/world/level/levelgen/Aquifer$FluidStatus;IZ)I")
+//    ),
     cancellable = true)
     public void changeComputedFluid(int pX, int pY, int pZ, CallbackInfoReturnable<Aquifer.FluidStatus> cir) {
-        if (test$preliminaryContinentalValue(pX, pY, pZ) <= -0.11F) { // OverworldBiomeBuilder.coastContinentalness max
+        if (cir.getReturnValue().at(pY).is(Blocks.LAVA)) {
+            return;
+        }
+        if (test$preliminaryContinentalValue(pX, pY, pZ) <= OverworldBiomeBuilder.NEAR_INLAND_START) { // OverworldBiomeBuilder.coastContinentalness max
+            // Replace non-continental aquifers with salt-water. (replaces ocean water, and some connecting flooded caves)
             cir.setReturnValue(new Aquifer.FluidStatus(((Aquifer$FluidStatusAccessor) (Object) cir.getReturnValue()).getFluidLevel(), Blocks.CAKE.defaultBlockState()));
         }
     }
